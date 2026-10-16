@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gatehouse Gateway | High-Performance Reactive API Gateway</title>
+  <meta name="description" content="Production-grade API Gateway built on Spring Cloud Gateway Reactive, Redis 7 token-bucket rate limiting, RS256 JWT validation, PostgreSQL dynamic routing, and Prometheus observability.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <a href="#" class="nav-brand">
+      <div class="brand-icon">GH</div>
+      <span>Gatehouse Gateway</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#simulators">Interactive Lab</a></li>
+      <li><a href="#routes">Dynamic Routes</a></li>
+      <li><a href="#quickstart">Quickstart</a></li>
+      <li><a href="#observability">Observability</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="https://github.com/crnjihia/gatehouse-gateway" target="_blank" rel="noopener" class="btn btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://github.com/crnjihia/gatehouse-gateway/releases/tag/v1.0.0" target="_blank" rel="noopener" class="btn btn-primary">
+        Release v1.0.0
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      v1.0.0 Production Release &bull; 10,000 RPS Benchmarked
+    </div>
+    <h1 class="hero-title">
+      Zero-Downtime Reactive API Gateway <br>
+      <span class="hero-gradient">For Modern Cloud Architectures</span>
+    </h1>
+    <p class="hero-subtitle">
+      Built on Spring Boot 3.x, Spring Cloud Gateway Reactive, Redis 7 Token-Bucket Rate Limiting, and PostgreSQL 15 Dynamic Routing with instant event-driven reload.
+    </p>
+    <div class="nav-actions" style="justify-content:center;">
+      <a href="#quickstart" class="btn btn-primary">Get Started in 60s</a>
+      <a href="#simulators" class="btn btn-secondary">Explore Interactive Lab</a>
+    </div>
+
+    <!-- Stat Badges -->
+    <div class="hero-stats">
+      <div class="stat-card glass-panel">
+        <div class="stat-value">10k+</div>
+        <div class="stat-label">RPS Target (p99 &lt; 100ms)</div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-value">&lt; 1ms</div>
+        <div class="stat-label">Redis Lua Token Bucket</div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-value">100%</div>
+        <div class="stat-label">Dynamic Route Hot-Reload</div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-value">RS256</div>
+        <div class="stat-label">Asymmetric Cryptographic JWT</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+
+    <!-- Interactive Architecture Pipeline -->
+    <section id="architecture" class="pipeline-visualizer glass-panel">
+      <div class="section-header">
+        <div class="section-tag">Request Lifecycle</div>
+        <h2 class="section-title">Reactive Gateway Filter Pipeline</h2>
+        <p class="section-desc">Click any node below to inspect real-time request mutations, order priorities, and propagated downstream headers.</p>
+      </div>
+
+      <div class="pipeline-flow">
+        <div class="pipeline-node active" data-node="client">
+          <h4>Client</h4>
+          <span>Ingress Request</span>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-node" data-node="jwt">
+          <h4>JWT Filter</h4>
+          <span>Order -50 (RS256)</span>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-node" data-node="ratelimit">
+          <h4>Rate Limiter</h4>
+          <span>Redis Token Bucket</span>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-node" data-node="transform">
+          <h4>Transformation</h4>
+          <span>Order -2 (Masking)</span>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-node" data-node="circuitbreaker">
+          <h4>Circuit Breaker</h4>
+          <span>Resilience4j / Fallback</span>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-node" data-node="downstream">
+          <h4>Microservice</h4>
+          <span>Netty Routing</span>
+        </div>
+      </div>
+
+      <div class="node-inspector">
+        <h3 id="inspector-title" style="color:var(--accent-cyan);margin-bottom:0.4rem;">Client Request Layer</h3>
+        <p id="inspector-desc" style="color:var(--text-muted);font-size:0.92rem;margin-bottom:0.75rem;">
+          Ingress layer receiving external HTTP/1.1 and HTTP/2 requests with TLS termination.
+        </p>
+        <div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.3rem;">INTERCEPTED HEADERS & ATTRIBUTES:</div>
+        <div id="inspector-headers" class="headers-display">
+Authorization: Bearer &lt;RS256-JWT&gt;
+X-Forwarded-For: 203.0.113.195
+Host: api.gatehouse.internal
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Simulators Section -->
+    <section id="simulators">
+      <div class="section-header">
+        <div class="section-tag">Interactive Demonstrations</div>
+        <h2 class="section-title">Live Behavioral Simulators</h2>
+        <p class="section-desc">Interact with the gateway's core algorithmic engines in real-time right in your browser.</p>
+      </div>
+
+      <div class="simulators-grid">
+        
+        <!-- Rate Limiter Simulator -->
+        <div class="sim-box glass-panel">
+          <div class="sim-header">
+            <h3>Token Bucket Rate Limiter</h3>
+            <span style="font-size:0.8rem;color:var(--accent-emerald);">Redis 7 Lua Engine</span>
+          </div>
+          
+          <div class="plan-selector">
+            <button class="plan-btn active" data-plan="FREE">FREE (60/m)</button>
+            <button class="plan-btn" data-plan="PRO">PRO (600/m)</button>
+            <button class="plan-btn" data-plan="ENTERPRISE">ENTERPRISE (6000/m)</button>
+          </div>
+
+          <div class="bucket-container">
+            <div id="bucket-water" class="bucket-water" style="height: 100%;"></div>
+            <div id="bucket-label" class="bucket-label">60 / 60 Tokens</div>
+          </div>
+
+          <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;">
+            <button id="btn-send-req" class="btn btn-primary" style="flex:1;">Send Request (1 Token)</button>
+            <button id="btn-burst-req" class="btn btn-secondary" style="flex:1;">Burst Spike (15 Tokens)</button>
+          </div>
+
+          <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.3rem;">RESPONSE HEADERS EMITTED:</div>
+          <div id="rate-headers" class="headers-display">
+HTTP/1.1 200 OK<br>X-RateLimit-Limit: 60<br>X-RateLimit-Remaining: 60<br>X-RateLimit-Reset: 60s
+          </div>
+        </div>
+
+        <!-- Masking Playground -->
+        <div class="sim-box glass-panel">
+          <div class="sim-header">
+            <h3>PCI / PII Response Body Masking</h3>
+            <span style="font-size:0.8rem;color:var(--accent-cyan);">OrderedGatewayFilter (-2)</span>
+          </div>
+
+          <div class="mask-playground">
+            <div>
+              <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:0.3rem;">Original Downstream Response JSON:</label>
+              <textarea id="mask-input" class="code-editor">{
+  "orderId": "ORD-99812",
+  "cardNumber": "4111222233334444",
+  "cvv": "999",
+  "amount": 249.99
+}</textarea>
+            </div>
+
+            <div>
+              <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:0.3rem;">Transformed Gateway Client Response:</label>
+              <pre id="mask-output" style="height:120px;overflow-y:auto;"></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Resilience4j Circuit Breaker Lab -->
+      <div class="glass-panel" style="padding:2rem;margin-bottom:3.5rem;">
+        <div class="sim-header">
+          <div>
+            <h3 style="font-size:1.3rem;">Resilience4j Fault Tolerance & Circuit Breaking</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.25rem;">
+              Per-route circuit breaking configuration: slidingWindowSize=20, failureRateThreshold=50%, waitDurationInOpenState=15s.
+            </p>
+          </div>
+          <div style="display:flex;gap:0.75rem;">
+            <button id="btn-cb-trip" class="btn btn-secondary" style="color:var(--accent-rose);border-color:rgba(244,63,94,0.4);">
+              Simulate 50% Failure
+            </button>
+            <button id="btn-cb-reset" class="btn btn-secondary">
+              Reset Circuit
+            </button>
+          </div>
+        </div>
+
+        <div class="cb-meter">
+          <div id="cb-closed" class="cb-state-badge active-closed">CLOSED (Healthy)</div>
+          <div id="cb-open" class="cb-state-badge">OPEN (Tripped &rarr; Fallback)</div>
+          <div id="cb-half" class="cb-state-badge">HALF_OPEN (Trial Probes)</div>
+        </div>
+
+        <div id="cb-output" class="headers-display" style="color:#f8fafc;padding:1.25rem;"></div>
+      </div>
+    </section>
+
+    <!-- Quickstart & API Reference Tabs -->
+    <section id="quickstart" style="margin-bottom:3.5rem;">
+      <div class="section-header">
+        <div class="section-tag">Integration & Deployment</div>
+        <h2 class="section-title">Developer Quickstart</h2>
+        <p class="section-desc">Run Gatehouse Gateway locally or behind your production Kubernetes / Docker Compose topology.</p>
+      </div>
+
+      <div class="glass-panel" style="padding:2rem;">
+        <div class="tabs-nav">
+          <button class="tab-btn active" data-tab="tab-docker">Docker Compose (6 Services)</button>
+          <button class="tab-btn" data-tab="tab-admin">Admin API & Client Onboarding</button>
+          <button class="tab-btn" data-tab="tab-jwt">JWT Authentication</button>
+          <button class="tab-btn" data-tab="tab-reload">Dynamic Route Reload</button>
+        </div>
+
+        <!-- Docker Compose Tab -->
+        <div id="tab-docker" class="tab-content active">
+          <p style="color:var(--text-muted);margin-bottom:1rem;">
+            Launch the complete production stack (Gateway, PostgreSQL 15, Redis 7, WireMock, Prometheus, and Grafana) with a single command:
+          </p>
+          <pre><code># 1. Clone repository
+git clone https://github.com/crnjihia/gatehouse-gateway.git
+cd gatehouse-gateway
+
+# 2. Start full 6-container topology
+docker compose up -d --build
+
+# 3. Verify health
+curl -s http://localhost:8080/actuator/health | jq .
+# -> { "status": "UP" }</code></pre>
+        </div>
+
+        <!-- Admin API Tab -->
+        <div id="tab-admin" class="tab-content">
+          <p style="color:var(--text-muted);margin-bottom:1rem;">
+            Onboard new API clients with customized plans, rate limits, and daily quotas using the Admin Master Key:
+          </p>
+          <pre><code># Create new enterprise client
+curl -X POST http://localhost:8080/admin/clients \
+  -H "X-Admin-Key: gatehouse-master-admin-key-9988" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Stripe Payments Corp",
+    "ownerEmail": "api@stripe.com",
+    "plan": "ENTERPRISE",
+    "rateLimitPerMin": 6000,
+    "quotaPerDay": 1000000
+  }'
+
+# Returns raw API key once (hashed with SHA-256 in PostgreSQL):
+# {
+#   "id": "c71f54a8-6b5e-436f-b258-0097781bcf7b",
+#   "name": "Stripe Payments Corp",
+#   "apiKeyPrefix": "gh_live_a1b2c3d4",
+#   "rawApiKey": "gh_live_a1b2c3d4_8f99e3a...",
+#   "status": "ACTIVE"
+# }</code></pre>
+        </div>
+
+        <!-- JWT Authentication Tab -->
+        <div id="tab-jwt" class="tab-content">
+          <p style="color:var(--text-muted);margin-bottom:1rem;">
+            Authenticate downstream microservice calls using client-specific RS256 JWT bearer tokens:
+          </p>
+          <pre><code># Call protected downstream route
+curl -i http://localhost:8080/api/v1/users/42 \
+  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiJ9..."
+
+# Propagated to downstream services:
+# X-Client-Id: client-enterprise-99
+# X-Client-Scopes: [users.read, users.write]
+# X-Request-Id: 51bab0d0-5be9-4bb8-b182-a5f363d56f74</code></pre>
+        </div>
+
+        <!-- Dynamic Route Reload Tab -->
+        <div id="tab-reload" class="tab-content">
+          <p style="color:var(--text-muted);margin-bottom:1rem;">
+            Add or update routes in PostgreSQL `route_configs` table and trigger an immediate zero-downtime refresh:
+          </p>
+          <pre><code># Trigger route table reload via Admin API
+curl -X POST http://localhost:8080/admin/routes/reload \
+  -H "X-Admin-Key: gatehouse-master-admin-key-9988"
+
+# Response:
+# {
+#   "status": "SUCCESS",
+#   "message": "Dynamic route refresh triggered successfully."
+# }</code></pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Observability & Metrics Section -->
+    <section id="observability" class="glass-panel" style="padding:2rem;">
+      <div class="section-header">
+        <div class="section-tag">Telemetry & Monitoring</div>
+        <h2 class="section-title">Full Production Observability</h2>
+        <p class="section-desc">Micrometer metrics mapped directly to Prometheus and visualizable via pre-provisioned Grafana dashboards.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;">
+        <div style="background:var(--bg-primary);padding:1.25rem;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+          <h4 style="color:var(--accent-cyan);margin-bottom:0.5rem;">gateway.requests.total</h4>
+          <p style="color:var(--text-muted);font-size:0.85rem;">Counter metric partitioned by <code>{route, method, status}</code> tracking real-time traffic volume.</p>
+        </div>
+        <div style="background:var(--bg-primary);padding:1.25rem;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+          <h4 style="color:var(--accent-purple);margin-bottom:0.5rem;">gateway.request.duration</h4>
+          <p style="color:var(--text-muted);font-size:0.85rem;">High-resolution latency histogram calculating p50, p95, and p99 percentiles.</p>
+        </div>
+        <div style="background:var(--bg-primary);padding:1.25rem;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+          <h4 style="color:var(--accent-rose);margin-bottom:0.5rem;">gateway.ratelimit.rejected</h4>
+          <p style="color:var(--text-muted);font-size:0.85rem;">Tracks 429 quota and rate-limit violations partitioned by <code>{clientId}</code>.</p>
+        </div>
+        <div style="background:var(--bg-primary);padding:1.25rem;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+          <h4 style="color:var(--accent-amber);margin-bottom:0.5rem;">gateway.circuitbreaker.state</h4>
+          <p style="color:var(--text-muted);font-size:0.85rem;">Gauges tracking Resilience4j state (0=CLOSED, 1=OPEN, 2=HALF_OPEN) per route.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div style="max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <div>Gatehouse Gateway &copy; 2026. Production-Grade Reactive API Gateway under Apache 2.0 License.</div>
+      <div style="display:flex;gap:1.5rem;">
+        <a href="https://github.com/crnjihia/gatehouse-gateway" style="color:var(--text-muted);text-decoration:none;">GitHub</a>
+        <a href="https://github.com/crnjihia/gatehouse-gateway/blob/main/README.md" style="color:var(--text-muted);text-decoration:none;">Documentation</a>
+        <a href="https://github.com/crnjihia/gatehouse-gateway/releases" style="color:var(--text-muted);text-decoration:none;">Releases</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
