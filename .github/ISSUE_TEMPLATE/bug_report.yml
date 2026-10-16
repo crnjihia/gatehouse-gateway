@@ -1,0 +1,38 @@
+name: Bug Report
+description: Create a report to help us improve Gatehouse Gateway
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report an issue!
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Start Gateway with 'docker compose up -d'
+        2. Send request: curl -H "X-API-Key: ..." http://localhost:8080/api/users/1
+        3. Observe error: ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs & Output
+      description: Copy and paste relevant logs or stack traces.
+      render: shell
