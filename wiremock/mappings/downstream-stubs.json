@@ -1,0 +1,78 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPattern": "/users/([0-9]+)"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "1001",
+          "name": "Jane Developer",
+          "email": "jane@example.com",
+          "role": "MEMBER",
+          "tier": "ENTERPRISE",
+          "service": "users-service-v1"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPattern": "/orders/([0-9]+)"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "orderId": "5001",
+          "status": "COMPLETED",
+          "total": 199.99,
+          "currency": "USD",
+          "service": "orders-service-v1"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPattern": "/payments/charge"
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "transactionId": "tx_987234981",
+          "status": "APPROVED",
+          "amount": 250.00,
+          "cardNumber": "4532750012345678",
+          "cvv": "987",
+          "timestamp": "2026-10-16T20:00:00Z"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPattern": "/users/chaos"
+      },
+      "response": {
+        "status": 500,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "error": "Downstream database connection failure"
+        }
+      }
+    }
+  ]
+}

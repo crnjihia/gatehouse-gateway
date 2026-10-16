@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL 15 - Route configurations, API client identities, and Partitioned request logs
+  postgres:
+    image: postgres:15-alpine
+    container_name: gatehouse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gatehouse_db
+      POSTGRES_USER: gatehouse
+      POSTGRES_PASSWORD: gatehouse_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gatehouse -d gatehouse_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Redis 7 - Atomic Token-Bucket rate limiting and daily quota counters
+  redis:
+    image: redis:7-alpine
+    container_name: gatehouse-redis
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 3. WireMock - Mock Downstream Microservices (Users, Orders, Payments, Chaos)
+  wiremock:
+    image: wiremock/wiremock:3.9.1
+    container_name: gatehouse-wiremock
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings:ro
+
+  # 4. Gatehouse Gateway - Spring Cloud Gateway Reactive core
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gatehouse-gateway
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      wiremock:
+        condition: service_started
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: gatehouse_db
+      POSTGRES_USER: gatehouse
+      POSTGRES_PASSWORD: gatehouse_secret
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ADMIN_SECRET_TOKEN: gatehouse-master-admin-key-9988
+      SPRING_PROFILES_ACTIVE: default
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 5. Prometheus - Metrics scraper for Micrometer metrics
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: gatehouse-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - gateway
+
+  # 6. Grafana - Visual dashboards with pre-provisioned data sources and dashboards
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: gatehouse-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: gatehouse
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+volumes:
+  pgdata:

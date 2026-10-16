@@ -1,0 +1,185 @@
+{
+  "info": {
+    "_postman_id": "c1f7a049-34b4-4e4b-91f6-d8bb37ac9988",
+    "name": "Gatehouse Gateway API Collection",
+    "description": "Production-grade Postman collection for Gatehouse Gateway featuring Admin Management, JWT Validation, Token-Bucket Rate Limiting, Body Masking, and Circuit Breakers.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "adminKey", "value": "gatehouse-master-admin-key-9988", "type": "string" },
+    { "key": "apiKey", "value": "gh_live_demo_enterprise_key_12345", "type": "string" },
+    { "key": "clientId", "value": "10000000-0000-0000-0000-000000000001", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Admin API",
+      "item": [
+        {
+          "name": "Create API Client",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Admin-Key", "value": "{{adminKey}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fintech Partner Corp\",\n  \"ownerEmail\": \"api-team@fintech.io\",\n  \"plan\": \"PRO\",\n  \"rateLimitPerMin\": 600,\n  \"quotaPerDay\": 100000\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/admin/clients", "host": ["{{baseUrl}}"], "path": ["admin", "clients"] }
+          }
+        },
+        {
+          "name": "List All API Clients",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Admin-Key", "value": "{{adminKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/admin/clients", "host": ["{{baseUrl}}"], "path": ["admin", "clients"] }
+          }
+        },
+        {
+          "name": "Get API Client By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Admin-Key", "value": "{{adminKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/admin/clients/{{clientId}}", "host": ["{{baseUrl}}"], "path": ["admin", "clients", "{{clientId}}"] }
+          }
+        },
+        {
+          "name": "Rotate Client API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Admin-Key", "value": "{{adminKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/admin/clients/{{clientId}}/rotate-key", "host": ["{{baseUrl}}"], "path": ["admin", "clients", "{{clientId}}", "rotate-key"] }
+          }
+        },
+        {
+          "name": "Create Dynamic Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Admin-Key", "value": "{{adminKey}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"routeId\": \"inventory-service\",\n  \"uri\": \"http://wiremock:8080\",\n  \"predicates\": \"[{\\\"name\\\": \\\"Path\\\", \\\"args\\\": {\\\"pattern\\\": \\\"/api/v1/inventory/**\\\"}}]\",\n  \"filters\": \"[{\\\"name\\\": \\\"StripPrefix\\\", \\\"args\\\": {\\\"parts\\\": \\\"2\\\"}}, {\\\"name\\\": \\\"CircuitBreaker\\\", \\\"args\\\": {\\\"name\\\": \\\"inventoryCircuitBreaker\\\", \\\"fallbackUri\\\": \\\"forward:/fallback\\\"}}]\",\n  \"routeOrder\": 10,\n  \"enabled\": true,\n  \"description\": \"Dynamic inventory route loaded into database\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/admin/routes", "host": ["{{baseUrl}}"], "path": ["admin", "routes"] }
+          }
+        },
+        {
+          "name": "Trigger Route Reload (Hot Reload)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Admin-Key", "value": "{{adminKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/admin/routes/reload", "host": ["{{baseUrl}}"], "path": ["admin", "routes", "reload"] }
+          }
+        },
+        {
+          "name": "Get Client Usage Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Admin-Key", "value": "{{adminKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/admin/usage/{{clientId}}", "host": ["{{baseUrl}}"], "path": ["admin", "usage", "{{clientId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gateway Routing & Security",
+      "item": [
+        {
+          "name": "Route to Users (With API Key)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-API-Key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/v1/users/1001", "host": ["{{baseUrl}}"], "path": ["api", "v1", "users", "1001"] }
+          }
+        },
+        {
+          "name": "Route to Orders (With API Key)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-API-Key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/v1/orders/5001", "host": ["{{baseUrl}}"], "path": ["api", "v1", "orders", "5001"] }
+          }
+        },
+        {
+          "name": "Route to Payments (Body Masking Demo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-API-Key", "value": "{{apiKey}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 250.00,\n  \"currency\": \"USD\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/payments/charge", "host": ["{{baseUrl}}"], "path": ["api", "v1", "payments", "charge"] }
+          }
+        },
+        {
+          "name": "Unauthenticated Request (Asserts 401 ProblemDetail)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/users/1001", "host": ["{{baseUrl}}"], "path": ["api", "v1", "users", "1001"] }
+          }
+        },
+        {
+          "name": "Circuit Breaker Downstream Chaos (Asserts 503 Fallback)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-API-Key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/v1/users/chaos", "host": ["{{baseUrl}}"], "path": ["api", "v1", "users", "chaos"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Observability & Actuator",
+      "item": [
+        {
+          "name": "Prometheus Metrics Endpoint",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/prometheus", "host": ["{{baseUrl}}"], "path": ["actuator", "prometheus"] }
+          }
+        },
+        {
+          "name": "Gateway Active Routes",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/gateway/routes", "host": ["{{baseUrl}}"], "path": ["actuator", "gateway", "routes"] }
+          }
+        },
+        {
+          "name": "Gateway Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] }
+          }
+        }
+      ]
+    }
+  ]
+}

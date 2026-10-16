@@ -1,0 +1,122 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: gatehouse-gateway
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  
+  # R2DBC Reactive Database Configuration
+  r2dbc:
+    url: r2dbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:gatehouse_db}
+    username: ${POSTGRES_USER:gatehouse}
+    password: ${POSTGRES_PASSWORD:gatehouse_secret}
+    pool:
+      initial-size: 10
+      max-size: 50
+      max-idle-time: 30m
+
+  # Flyway Migration (JDBC connection specifically for Flyway startup)
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:gatehouse_db}
+    user: ${POSTGRES_USER:gatehouse}
+    password: ${POSTGRES_PASSWORD:gatehouse_secret}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  # Reactive Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 64
+          max-idle: 16
+          min-idle: 8
+          max-wait: 1000ms
+
+  # Spring Cloud Gateway
+  cloud:
+    gateway:
+      metrics:
+        enabled: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 10s
+        pool:
+          type: elastic
+          max-idle-time: 30s
+
+# Resilience4j Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 20
+        failure-rate-threshold: 50.0
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-rate-threshold: 75.0
+        slow-call-duration-threshold: 3000ms
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - org.springframework.cloud.gateway.support.NotFoundException
+
+# Actuator & Observability
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        gateway.request.duration: true
+        http.server.requests: true
+      percentiles:
+        gateway.request.duration: 0.5, 0.95, 0.99
+    tags:
+      application: ${spring.application.name}
+
+# Custom Gatehouse Gateway Configuration
+gatehouse:
+  security:
+    jwt:
+      issuer: "gatehouse-auth"
+      audience: "gatehouse-api"
+      # If publicKeyPem is provided, used for RS256 signature verification.
+      # If empty, an internal 2048-bit RSA key pair is generated on startup (ideal for dev/test).
+      public-key-pem: ""
+    admin:
+      secret-token: ${ADMIN_SECRET_TOKEN:gatehouse-master-admin-key-9988}
+  routing:
+    refresh-interval-seconds: 30
+  rate-limiting:
+    enabled: true
+    free-tier-rate-per-min: 60
+    pro-tier-rate-per-min: 600
+    enterprise-tier-rate-per-min: 6000
+
+logging:
+  level:
+    root: INFO
+    com.gatehouse.gateway: INFO
+    org.springframework.cloud.gateway: INFO
+    io.github.resilience4j: INFO

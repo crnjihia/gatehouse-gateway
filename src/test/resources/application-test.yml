@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: gatehouse-gateway-test
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+  flyway:
+    enabled: false
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1
+  cloud:
+    gateway:
+      metrics:
+        enabled: false
+
+gatehouse:
+  security:
+    jwt:
+      issuer: "gatehouse-auth"
+      audience: "gatehouse-api"
+      public-key-pem: ""
+    admin:
+      secret-token: "test-admin-master-key"
+  routing:
+    refresh-interval-seconds: 3600
+  rate-limiting:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.gatehouse.gateway: INFO
