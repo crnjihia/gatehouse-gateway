@@ -255,7 +255,7 @@ Target SLA criteria:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please review [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, development setup, and pull request guidelines.
+I welcome contributions! Please review [CONTRIBUTING.md](CONTRIBUTING.md) for details on my code of conduct, development setup, and pull request guidelines.
 
 ---
 
