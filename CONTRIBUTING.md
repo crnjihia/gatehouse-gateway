@@ -1,12 +1,12 @@
 # Contributing to Gatehouse Gateway
 
-First off, thank you for considering contributing to Gatehouse Gateway! We welcome contributions, bug reports, feature requests, and pull requests from developers of all backgrounds.
+First off, thank you for considering contributing to Gatehouse Gateway! I welcome contributions, bug reports, feature requests, and pull requests from developers of all backgrounds.
 
 ---
 
 ## Code of Conduct
 
-We expect all contributors to adhere to standard respectful, professional, and welcoming open-source community standards. Please treat others with respect and constructive collaboration.
+I expect all contributors to adhere to standard respectful, professional, and welcoming open-source community standards. Please treat others with respect and constructive collaboration.
 
 ---
 
