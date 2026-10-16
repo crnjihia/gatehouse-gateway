@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. PostgreSQL 15 - Route configurations, API client identities, and Partitioned request logs
   postgres:
