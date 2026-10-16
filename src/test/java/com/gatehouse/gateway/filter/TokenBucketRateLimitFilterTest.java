@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+@SuppressWarnings({"unchecked", "rawtypes"})
 class TokenBucketRateLimitFilterTest {
 
     @Mock
