@@ -18,14 +18,10 @@ spring:
       max-size: 50
       max-idle-time: 30m
 
-  # Flyway Migration (JDBC connection specifically for Flyway startup)
+  # Flyway Migration handled by Gatehouse resilient FlywayConfig
   flyway:
-    enabled: true
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:gatehouse_db}
-    user: ${POSTGRES_USER:gatehouse}
-    password: ${POSTGRES_PASSWORD:gatehouse_secret}
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+    enabled: false
+
 
   # Reactive Redis Configuration
   data:
@@ -97,6 +93,13 @@ management:
 
 # Custom Gatehouse Gateway Configuration
 gatehouse:
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:gatehouse_db}
+    user: ${POSTGRES_USER:gatehouse}
+    password: ${POSTGRES_PASSWORD:gatehouse_secret}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   security:
     jwt:
       issuer: "gatehouse-auth"

@@ -54,11 +54,13 @@ public class RequestResponseTransformationFilterFactory
         bodyFilterConfig.setInClass(String.class);
         bodyFilterConfig.setOutClass(String.class);
         bodyFilterConfig.setRewriteFunction(String.class, String.class, (exchange, originalBody) -> {
+            log.info("RequestResponseTransformation rewriteFunction called! Body: {}, fieldsToMask: {}", originalBody, fieldsToMask);
             if (originalBody == null || originalBody.isBlank() || fieldsToMask.isEmpty()) {
                 return Mono.justOrEmpty(originalBody);
             }
 
             MediaType contentType = exchange.getResponse().getHeaders().getContentType();
+            log.info("Response Content-Type: {}", contentType);
             if (contentType != null && !contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
                 return Mono.just(originalBody);
             }
@@ -67,6 +69,7 @@ public class RequestResponseTransformationFilterFactory
                 JsonNode root = objectMapper.readTree(originalBody);
                 maskFieldsRecursively(root, fieldsToMask);
                 String maskedBody = objectMapper.writeValueAsString(root);
+                log.info("Masked body result: {}", maskedBody);
                 return Mono.just(maskedBody);
             } catch (Exception e) {
                 log.warn("Failed to parse/mask response body: {}", e.getMessage());
@@ -76,8 +79,9 @@ public class RequestResponseTransformationFilterFactory
 
         GatewayFilter bodyFilter = modifyResponseBodyFilterFactory.apply(bodyFilterConfig);
 
-        return (exchange, chain) -> {
+        return new org.springframework.cloud.gateway.filter.OrderedGatewayFilter((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+            log.info("RequestResponseTransformationFilter called for URI: {}", request.getURI());
 
             // 1. Correlation ID
             String requestId = exchange.getAttribute(JwtValidationGlobalFilter.ATTR_REQUEST_ID);
@@ -107,7 +111,7 @@ public class RequestResponseTransformationFilterFactory
             ServerHttpRequest mutatedRequest = reqBuilder.build();
 
             return bodyFilter.filter(exchange.mutate().request(mutatedRequest).build(), chain);
-        };
+        }, org.springframework.cloud.gateway.filter.NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1);
     }
 
     private void maskFieldsRecursively(JsonNode node, Set<String> fieldsToMask) {

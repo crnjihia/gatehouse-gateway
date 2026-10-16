@@ -9,24 +9,24 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(prefix = "spring.flyway", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "gatehouse.flyway", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class FlywayConfig {
 
     private static final Logger log = LoggerFactory.getLogger(FlywayConfig.class);
 
-    @Value("${spring.flyway.url:jdbc:postgresql://localhost:5432/gatehouse_db}")
+    @Value("${gatehouse.flyway.url:jdbc:postgresql://localhost:5432/gatehouse_db}")
     private String url;
 
-    @Value("${spring.flyway.user:gatehouse}")
+    @Value("${gatehouse.flyway.user:gatehouse}")
     private String user;
 
-    @Value("${spring.flyway.password:gatehouse_secret}")
+    @Value("${gatehouse.flyway.password:gatehouse_secret}")
     private String password;
 
-    @Value("${spring.flyway.locations:classpath:db/migration}")
+    @Value("${gatehouse.flyway.locations:classpath:db/migration}")
     private String locations;
 
-    @Value("${spring.flyway.baseline-on-migrate:true}")
+    @Value("${gatehouse.flyway.baseline-on-migrate:true}")
     private boolean baselineOnMigrate;
 
     @PostConstruct

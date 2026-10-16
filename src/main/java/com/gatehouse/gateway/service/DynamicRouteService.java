@@ -95,7 +95,8 @@ public class DynamicRouteService {
                                 eventPublisher.publishEvent(new RefreshRoutesEvent(this));
                             });
                 })
-                .doOnError(err -> log.error("Error refreshing dynamic routes: {}", err.getMessage()));
+                .doOnError(err -> log.warn("Dynamic route loading could not reach database: {}", err.getMessage()))
+                .onErrorResume(err -> Mono.empty());
     }
 
     private Mono<Void> evictRemovedRoutes(List<String> newRouteIds) {
