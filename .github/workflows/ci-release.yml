@@ -1,4 +1,4 @@
-name: CI & GitHub Release
+name: CI, Release & GitHub Packages
 
 on:
   push:
@@ -10,9 +10,11 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -40,9 +42,51 @@ jobs:
           name: gatehouse-gateway-jar
           path: target/gatehouse-gateway-*.jar
 
-  create-release:
+  publish-docker-package:
+    name: Publish to GitHub Packages (Container)
     needs: build-and-test
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=1.0.0
+            type=ref,event=branch
+            type=ref,event=tag
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  create-github-release:
+    name: Create GitHub Release
+    needs: build-and-test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -54,11 +98,20 @@ jobs:
           name: gatehouse-gateway-jar
           path: target/
 
-      - name: Create GitHub Release
+      - name: Determine Release Tag
+        id: release_tag
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=v1.0.0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Gatehouse Gateway ${{ github.ref_name }}
-          tag_name: ${{ github.ref_name }}
+          name: Gatehouse Gateway v1.0.0 (Production Release)
+          tag_name: ${{ steps.release_tag.outputs.tag }}
           draft: false
           prerelease: false
           generate_release_notes: true

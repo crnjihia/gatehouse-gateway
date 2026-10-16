@@ -8,7 +8,7 @@ COPY .mvn/ .mvn/
 COPY pom.xml ./
 
 # Pre-fetch dependencies
-RUN ./mvnw dependency:go-offline -B || true
+RUN chmod +x mvnw && ./mvnw dependency:go-offline -B || true
 
 # Copy source code and build jar
 COPY src/ src/
