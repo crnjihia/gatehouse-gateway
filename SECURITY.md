@@ -21,7 +21,7 @@ If you discover a security vulnerability in Gatehouse Gateway, **please do NOT r
 
 Instead, please report vulnerabilities by:
 1. Opening a **GitHub Security Advisory** directly on the repository: [New Security Advisory](https://github.com/crnjihia/gatehouse-gateway/security/advisories/new)
-2. Or contacting the maintainer via email: `security@gatehouse-gateway.org`
+2. Or contacting the maintainer via email: `crnjihia@gmail.com`
 
 ### What to Include in Your Report
 - A detailed description of the vulnerability.
